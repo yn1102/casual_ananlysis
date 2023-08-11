@@ -25,6 +25,8 @@ https://www.pinecone.io/
 4. 點開後設定維度為1536
 5. 其他設定可以用預設就好
 6. 創建完後去API keys得到keys跟Environment
+### Knowledge Graph Search API
+申請步驟參見 https://developers.google.com/knowledge-graph/prereqs?hl=zh-tw#project
 
 ### 填入openapi key 跟 serpapi key和pinecone的api keys跟Environment跟indexname
 - 在config.py中以下填入你自己的openapi key和serpapi key
@@ -35,7 +37,9 @@ pinecone_api = ""
 pinecone_env = ""
 pinecone_index_name = ""
 ```
-
+### 到static\scrip.js中第23、24行加入Knowledge Graph Search API
+- KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_event"), config);
+  KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_company"), config);
 
 ### 安裝必要套件
 - 執行以下程式安裝依賴包
