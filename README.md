@@ -38,7 +38,8 @@ pinecone_env = ""
 pinecone_index_name = ""
 ```
 ### 到static\scrip.js中第23、24行加入Knowledge Graph Search API
-```KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_event"), config);
+```javascript=
+KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_event"), config);
   KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_company"), config);
 ```
 ### 安裝必要套件
