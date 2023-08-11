@@ -1,4 +1,7 @@
 ﻿# casual-ananlysis
+###先申請自己的serp API key
+- https://serpapi.com/plan
+
 ## 安裝步驟
 ### 下載
 - 確保資料夾"因果分析agent"已成功下載到自己電腦中
