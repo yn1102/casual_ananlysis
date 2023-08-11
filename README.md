@@ -13,32 +13,34 @@
 
 ### 填入openapi key 跟 serpapi key
 - 在config.py中以下填入你自己的openapi key和serpapi key
-python=
+```python=
 OPEN_API_KEY = ""
 serpapi = ""
 pinecone_api = ""
 pinecone_env = ""
 pinecone_index_name = ""
-
+```
 
 ### 安裝必要套件
 - 執行以下程式安裝依賴包
-python=
+```python=
 pip install -r requirements.txt
+```
 ### 安裝畫圖套件
-python=
+```python=
 npm install -g @mermaid-js/mermaid-cli` to install mmdc
+```
 
 ### 打開終端機
 - 將終端機路徑切到因果分析檔案中
-python=
+```python=
 cd  因果分析agent資料夾路徑(看你存放在哪裡)
-
+```
 ### 執行
 - 執行以下程式
-python=
+```python=
 python app.py
-
+```
 ### 開啟網站
 - 複製該連結貼至瀏覽器中開啟網站
 
@@ -50,7 +52,7 @@ python app.py
 #### 抽取函數出現問題
 - 更改程式碼
 - 找到demo.py 183行，應該會看到下面程式碼
-python=
+```python=
 def history_event(doc):
     keyword_schema = Object(
     id="keyword_extract",
@@ -63,9 +65,9 @@ def history_event(doc):
         
     ],
     examples=[
-        、、、、、
+```
 - 找到以下代碼片段(233~236行)
-python=
+```python=
 data = extraction_chain.run((doc))
     data = data.split("\n")
     data = data[1]
@@ -74,6 +76,6 @@ data = extraction_chain.run((doc))
 python=
 data = extraction_chain.run((doc))['data']
     return data
-
+```
 #### 畫圖函數出現問題
 - 如果發現畫圖結果與預期不盡相同，還請見諒，偶爾會有不穩定的時候
