@@ -20,8 +20,8 @@ var config = {
   config['highlightHandler'] = function(e) {
     alert(e.row.name + ' highlighted');
   };*/
-  KGSearchWidget(key="AIzaSyC-do9AgWGWbNl2OrEfpsiYu8PSNjJxkY0", document.getElementById("user_input_event"), config);
-  KGSearchWidget(key="AIzaSyC-do9AgWGWbNl2OrEfpsiYu8PSNjJxkY0", document.getElementById("user_input_company"), config);
+  KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_event"), config);
+  KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_company"), config);
 
 var modal = document.getElementById('modal');
 var bgImg = document.getElementById('bgImg');
