@@ -1,6 +1,11 @@
 ﻿# casual-ananlysis
-###先申請自己的serp API key
-- https://serpapi.com/plan
+
+## 事前準備
+### 先申請自己的serp API key
+- 進入 https://serpapi.com/plan 註冊帳號
+- 登入後在 Your account即可看到 Your Private API Key
+
+###申請自己的向量資料庫
 
 ## 安裝步驟
 ### 下載
