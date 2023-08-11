@@ -40,7 +40,7 @@ pinecone_index_name = ""
 ### 到static\scrip.js中第23、24行加入Knowledge Graph Search API
 ```javascript=
 KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_event"), config);
-  KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_company"), config);
+KGSearchWidget(key="Knowledge Graph Search API", document.getElementById("user_input_company"), config);
 ```
 ### 安裝必要套件
 - 執行以下程式安裝依賴包
