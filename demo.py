@@ -16,7 +16,7 @@ from sklearn.cluster import KMeans
 from kor import create_extraction_chain, Object, Text ,Number
 from langchain import PromptTemplate, OpenAI, LLMChain
 import os
-rom config import OPEN_API_KEY, serpapi, pinecone_api, pinecone_env, pinecone_index_name
+from config import OPEN_API_KEY, serpapi, pinecone_api, pinecone_env, pinecone_index_name
 import ast
 from langchain.agents import initialize_agent
 from langchain.tools import Tool
@@ -233,8 +233,7 @@ def history_event(doc):
     data = extraction_chain.run((doc))['data']
     return data
 
-def get_related_history_events(query):
-    key_word = history_event(query)
+def get_related_history_events(key_word):
     print(key_word)
     llm = ChatOpenAI(temperature  =0.5, model_name = "gpt-3.5-turbo")
     prompt_template = """
@@ -348,10 +347,10 @@ def get_related_info(query):
 #抓事件名稱跟日期
 #重寫搜尋函數
 def event_time_inquiry(question):
-    llm = ChatOpenAI(temperature=0.5, model_name="gpt-3.5-turbo")
+    llm = ChatOpenAI(temperature=0, model_name="gpt-4")
     tools = load_tools(["serpapi", "llm-math"], llm=llm)
     agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True, max_iterations=2)
-    query = f"可以告訴我{question}事件的開始時間(年、月、日)嗎?"
+    query = f"可以告訴我{question}事件的開始時間(年-月-日)嗎?"
     raw_answer = agent.run(query)
     final_input = f'問題: {query}\n 回答:{raw_answer}'
     prompt_template = """
@@ -384,7 +383,7 @@ def CauseAnalysisWebAPI(input_query: str, history_events: dict, event):
                      model_name = "gpt-3.5-turbo-16k")
     
     '''依照關鍵字搜尋google前n個網址並總結'''
-    num_news = 20
+    num_news = 10
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100, separators=["\n\n", "\n", " ", ""])
     
     #refine方法中的template
@@ -449,11 +448,11 @@ def CauseAnalysisWebAPI(input_query: str, history_events: dict, event):
     split_doce = text_splitter.split_documents(documents)
     split_doce = remove_unnessary_word(split_doce)
     
-    PINECONE_API_KEY = 'd9a744de-7683-478a-b1da-6defd560093d'
-    PINECONE_API_ENV = 'us-west4-gcp'
+    PINECONE_API_KEY = pinecone_api
+    PINECONE_API_ENV = pinecone_env
     embeddings = OpenAIEmbeddings()
     pinecone.init(api_key=PINECONE_API_KEY, environment=PINECONE_API_ENV)
-    index_name = 'casual'
+    index_name = pinecone_index_name
     docsearch = Pinecone.from_texts([t.page_content for t in split_doce], embeddings, index_name=index_name)
     
     query =  f"{input_query}"
@@ -496,14 +495,12 @@ def CauseAnalysisWebAPI(input_query: str, history_events: dict, event):
     - 原因1: [描述第一個原因]
     - 原因2: [描述第二個原因]
     - 原因3: [描述第三個原因]
-
-    Future implications of the event(at least 3 future implications, more details is better):
     未來影響:
     - 未來影響1: [描述第一個有可能的未來影響]
     - 未來影響2: [描述第二個有可能的未來影響]
     - 未來影響3: [描述第三個有可能的未來影響]
-    - Inferring Future Impacts of Events from Past Historical Parallels :[]
-    - 我的觀點: [你的意見](The answer must be specific.)
+    我的觀點: 
+    - [你的意見和觀點](The answer must be specific.)
     The response must always use "Traditional Chinese"
     """
     prompt = PromptTemplate(template=prompt_template, input_variables=["input"])
@@ -706,7 +703,7 @@ def plot_stock_event_analysis(ticker_symbol, event, extra_events=None):
     event_date = pd.to_datetime(event[1]).date()
     event_text = f'{event[0]}\n( {event_date} )'
     event_price = df[df['Date'] == event_date]['Close'].values[0]
-    plt.annotate(event_text, xy=(event_date, event_price), xytext=(event_date, event_price *1.6),
+    plt.annotate(event_text, xy=(event_date, event_price), xytext=(event_date, event_price+(max(df['Close'])-min(df['Close'])) *0.3),
                  arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop, fontsize=15, 
                  ha='center', va='top')
     
@@ -717,7 +714,7 @@ def plot_stock_event_analysis(ticker_symbol, event, extra_events=None):
             event_name = extra_events['類似事件名稱'][i]
             event_text = f'{event_name}\n( {event_date} )'
             event_price = df[df['Date'] == event_date]['Close'].values[0]
-            plt.annotate(event_text, xy=(event_date, event_price), xytext=(event_date, event_price *2),
+            plt.annotate(event_text, xy=(event_date, event_price), xytext=(event_date, event_price+(max(df['Close'])-min(df['Close'])) *0.3),
                          arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop,
                          fontsize=12, ha='center', va='top')
     plt.xlabel('日期', fontsize=15)
@@ -771,7 +768,7 @@ def plot_RSI_event_analysis(ticker_symbol, event):
         event_date = pd.to_datetime(event[1]).date()
         event_text = f'{event[0]}\n( {event_date} )'
         event_price = df[df['Date'] == closest_date]['RSI'].values[0]
-        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price -5),
+        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price+(max(df['RSI'])-min(df['RSI'])) *0.3),
                     arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop, fontsize=15, 
                     ha='center', va='top')
 
@@ -859,7 +856,7 @@ def plot_MACD_event_analysis(ticker_symbol, event):
         event_date = pd.to_datetime(event[1]).date()
         event_text = f'{event[0]}\n( {event_date} )'
         event_price = df[df['Date'] == closest_date]['MACD'].values[0]
-        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price -5),
+        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price+(max(df['MACD'])-min(df['MACD'])) *0.3),
                     arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop, fontsize=15, 
                     ha='center', va='top')
     
@@ -944,7 +941,7 @@ def plot_bollinger_event_analysis(ticker_symbol, event):
         event_date = pd.to_datetime(event[1]).date()
         event_text = f'{event[0]}\n( {event_date} )'
         event_price = df[df['Date'] == closest_date]['Close'].values[0]
-        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price *1.1),
+        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price+(max(df['Close'])-min(df['Close'])) *0.3),
                     arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop, fontsize=15, 
                     ha='center', va='top')
     
@@ -1024,7 +1021,7 @@ def plot_only_stock_event_analysis(ticker_symbol, event):
         closest_date = df[df['Date'] <= event_date]['Date'].max()
         event_text = f'{event[0]}\n( {closest_date} )'
         event_price = df[df['Date'] == closest_date]['Close'].values[0]
-        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price *1.3),
+        plt.annotate(event_text, xy=(closest_date, event_price), xytext=(closest_date, event_price+(max(df['Close'])-min(df['Close'])) *0.6),
                     arrowprops=dict(arrowstyle='-|>', color='red'), fontproperties=font_prop, fontsize=15, 
                     ha='center', va='top')
 
@@ -1591,4 +1588,23 @@ def cut_result(result):
         cause, effect = remaining.split(effect_marker4, 1)
     else:
         cause, effect = None, None
-    return background, cause, effect
+    pointer_maker = "我的觀點:\n"
+    pointer_maker2 = "我的观点:\n"
+    pointer_maker3 = "我的观點：\n"
+    pointer_maker4 = "我的觀點：\n"
+    pointer_maker5 = "我的觀點:"
+    
+    if pointer_maker in effect:
+        effect, pointer = effect.split(pointer_maker, 1)
+    elif pointer_maker2 in effect:
+        effect, pointer = effect.split(pointer_maker2, 1)
+    elif pointer_maker3 in effect:
+        effect, pointer = effect.split(pointer_maker3, 1)
+    elif pointer_maker4 in effect:
+        effect, pointer = effect.split(pointer_maker4, 1)
+    elif pointer_maker5 in effect:
+        effect, pointer = effect.split(pointer_maker5, 1)
+    else:
+        pointer = None
+    
+    return background, cause, effect, pointer
